@@ -7,7 +7,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { CssBaseline } from "@mui/material";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+    createBrowserRouter,
+    RouterProvider,
+    redirect,
+} from "react-router-dom";
 
 import store from "./store/redux.ts";
 import LogIn from "./routes/logIn.tsx";
@@ -17,6 +21,7 @@ import Statistics from "./routes/statistics.tsx";
 import Categories from "./routes/categories.tsx";
 import Expenses from "./routes/expenses.tsx";
 import NotFound from "./routes/notFound.tsx";
+import UserInfo from "./routes/userInfo.tsx";
 
 const router = createBrowserRouter([
     {
@@ -26,6 +31,11 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <Root />,
+        loader: () => {
+            if (!store.getState().auth.isLoggedIn)
+                return redirect("/login?mode=logIn");
+            return null;
+        },
         children: [
             { index: true, element: <Home /> },
             {
@@ -36,10 +46,13 @@ const router = createBrowserRouter([
                 path: "/statistics",
                 element: <Statistics />,
             },
-
             {
                 path: "/categories",
                 element: <Categories />,
+            },
+            {
+                path: "/userInfo",
+                element: <UserInfo />,
             },
         ],
         errorElement: <NotFound />,

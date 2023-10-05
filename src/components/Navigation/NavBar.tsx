@@ -3,10 +3,11 @@ import HomeIcon from "@mui/icons-material/Home";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import CategoryIcon from "@mui/icons-material/Category";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import PersonIcon from "@mui/icons-material/Person";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-type Routes = "/" | "/categories" | "/statistics";
+type Routes = "/" | "/categories" | "/statistics" | "/expenses" | "/userInfo";
 
 const NavBar: React.FC = () => {
     const [currentRoute, setCurrentRoute] = useState<Routes>("/");
@@ -45,6 +46,11 @@ const NavBar: React.FC = () => {
                 value="/categories"
                 label="Categories"
                 icon={<CategoryIcon />}
+            />
+            <BottomNavigationAction
+                value="/userInfo"
+                label="User"
+                icon={<PersonIcon />}
             />
         </BottomNavigation>
     );

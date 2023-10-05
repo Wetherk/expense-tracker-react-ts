@@ -80,8 +80,9 @@ const LogIn: React.FC = () => {
             return;
         }
 
-        if (authMode === "logIn") dispatch(logIn(email, password));
-        if (authMode === "signUp") dispatch(createAccount(email, password));
+        if (authMode === "logIn") dispatch(logIn(email, password, navigate));
+        if (authMode === "signUp")
+            dispatch(createAccount(email, password, navigate));
     };
 
     const authTitle = authMode === "logIn" ? "Log In" : "Sign Up";
