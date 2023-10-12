@@ -22,40 +22,52 @@ import Categories from "./routes/categories.tsx";
 import Expenses from "./routes/expenses.tsx";
 import NotFound from "./routes/notFound.tsx";
 import UserInfo from "./routes/userInfo.tsx";
+import App from "./App.tsx";
 
 const router = createBrowserRouter([
     {
-        path: "/login",
-        element: <LogIn />,
-    },
-    {
         path: "/",
-        element: <Root />,
-        loader: () => {
-            if (!store.getState().auth.isLoggedIn)
-                return redirect("/login?mode=logIn");
-            return null;
-        },
+        element: <App />,
         children: [
-            { index: true, element: <Home /> },
             {
-                path: "/expenses",
-                element: <Expenses />,
+                path: "/login",
+                element: <LogIn />,
             },
             {
-                path: "/statistics",
-                element: <Statistics />,
-            },
-            {
-                path: "/categories",
-                element: <Categories />,
-            },
-            {
-                path: "/userInfo",
-                element: <UserInfo />,
+                path: "/",
+                element: <Root />,
+                loader: () => {
+                    const { auth } = store.getState();
+                    if (auth.loading) {
+                        return null;
+                    }
+                    if (!auth.isLoggedIn) {
+                        return redirect("/login?mode=logIn");
+                    }
+                    return null;
+                },
+                children: [
+                    { index: true, element: <Home /> },
+                    {
+                        path: "/expenses",
+                        element: <Expenses />,
+                    },
+                    {
+                        path: "/statistics",
+                        element: <Statistics />,
+                    },
+                    {
+                        path: "/categories",
+                        element: <Categories />,
+                    },
+                    {
+                        path: "/userInfo",
+                        element: <UserInfo />,
+                    },
+                ],
+                errorElement: <NotFound />,
             },
         ],
-        errorElement: <NotFound />,
     },
 ]);
 

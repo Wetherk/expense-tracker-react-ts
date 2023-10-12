@@ -4,7 +4,6 @@ import {
     signOut,
 } from "firebase/auth";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { NavigateFunction } from "react-router-dom";
 
 import { auth } from "../firebase/firebase";
 import { AppDispatch } from "./redux";
@@ -15,26 +14,16 @@ interface AuthState {
     isLoggedIn: boolean;
     error: string;
     user: User;
-}
-
-const savedUser = localStorage.getItem("user");
-let initialToken = "";
-let initialEmail = "";
-let initialLoggedIn = false;
-
-if (savedUser) {
-    const user = JSON.parse(savedUser);
-    initialToken = user.accessToken;
-    initialEmail = user.email;
-    initialLoggedIn = true;
+    loading: boolean;
 }
 
 const initialState: AuthState = {
-    isLoggedIn: initialLoggedIn,
+    isLoggedIn: false,
     error: "",
+    loading: true,
     user: {
-        accessToken: initialToken,
-        email: initialEmail,
+        accessToken: "",
+        email: "",
     },
 };
 
@@ -58,6 +47,9 @@ const authSlice = createSlice({
             state.user.accessToken = action.payload.accessToken;
             state.user.email = action.payload.email;
         },
+        setLoading: (state, action) => {
+            state.loading = action.payload;
+        },
     },
 });
 
@@ -67,62 +59,29 @@ export const authActions = authSlice.actions;
 
 export default authReducer;
 
-export const createAccount = (
-    email: string,
-    password: string,
-    navigate: NavigateFunction
-) => {
+export const createAccount = (email: string, password: string) => {
     return (dispatch: AppDispatch) => {
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                user.getIdToken().then((accessToken) => {
-                    dispatch(authActions.setUser({ accessToken, email }));
-                    dispatch(authActions.setIsLoggedIn(true));
-                    dispatch(authActions.setError(""));
-                    navigate("/");
-                });
-            })
-            .catch((error) => {
-                const errorMessage = getFirebaseErrorMessage(error.code);
-                dispatch(authActions.setError(errorMessage));
-            });
+        createUserWithEmailAndPassword(auth, email, password).catch((error) => {
+            const errorMessage = getFirebaseErrorMessage(error.code);
+            dispatch(authActions.setError(errorMessage));
+        });
     };
 };
 
-export const logIn = (
-    email: string,
-    password: string,
-    navigate: NavigateFunction
-) => {
+export const logIn = (email: string, password: string) => {
     return (dispatch: AppDispatch) => {
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                user.getIdToken().then((accessToken) => {
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify({ accessToken, email })
-                    );
-                    dispatch(authActions.setUser({ accessToken, email }));
-                    dispatch(authActions.setIsLoggedIn(true));
-                    dispatch(authActions.setError(""));
-                    navigate("/");
-                });
-            })
-            .catch((error) => {
-                const errorMessage = getFirebaseErrorMessage(error.code);
-                dispatch(authActions.setError(errorMessage));
-            });
+        signInWithEmailAndPassword(auth, email, password).catch((error) => {
+            const errorMessage = getFirebaseErrorMessage(error.code);
+            dispatch(authActions.setError(errorMessage));
+        });
     };
 };
 
-export const logOut = (navigate: NavigateFunction) => {
+export const logOut = () => {
     return (dispatch: AppDispatch) => {
-        signOut(auth).then(() => {
-            // dispatch(authActions.setUser({ accessToken: "", email: "" }));
-            // dispatch(authActions.setIsLoggedIn(false));
-            localStorage.removeItem("user");
+        signOut(auth).catch((error) => {
+            const errorMessage = getFirebaseErrorMessage(error.code);
+            dispatch(authActions.setError(errorMessage));
         });
     };
 };

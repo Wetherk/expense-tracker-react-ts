@@ -73,16 +73,17 @@ const LogIn: React.FC = () => {
         setIsPasswordTouched(true);
     };
 
-    const handleLogin = () => {
+    const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
         if (!isFormValid) {
             setIsPasswordTouched(true);
             setIsEmailTouched(true);
             return;
         }
 
-        if (authMode === "logIn") dispatch(logIn(email, password, navigate));
-        if (authMode === "signUp")
-            dispatch(createAccount(email, password, navigate));
+        if (authMode === "logIn") dispatch(logIn(email, password));
+        if (authMode === "signUp") dispatch(createAccount(email, password));
     };
 
     const authTitle = authMode === "logIn" ? "Log In" : "Sign Up";
@@ -113,43 +114,49 @@ const LogIn: React.FC = () => {
                 >
                     {authTitle}
                 </Typography>
-                <TextField
-                    label="Email"
-                    type="email"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={email}
-                    onChange={handleEmailChange}
-                    onBlur={handleEmailBlur}
-                    helperText={emailHasError && "Enter correct email address"}
-                    error={emailHasError}
-                />
-                <TextField
-                    label="Password"
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    onBlur={handlePasswordBlur}
-                    helperText={
-                        passwordHasError &&
-                        "Password should be at least 6 characters"
-                    }
-                    error={passwordHasError}
-                />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    style={{ marginTop: "1rem" }}
-                    onClick={handleLogin}
-                    disabled={formHasError}
-                >
-                    {authButtonText}
-                </Button>
+                <form onSubmit={handleLogin}>
+                    <TextField
+                        label="Email"
+                        type="email"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={email}
+                        onChange={handleEmailChange}
+                        onBlur={handleEmailBlur}
+                        helperText={
+                            emailHasError && "Enter correct email address"
+                        }
+                        error={emailHasError}
+                        autoComplete="email"
+                    />
+                    <TextField
+                        label="Password"
+                        type="password"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={password}
+                        onChange={handlePasswordChange}
+                        onBlur={handlePasswordBlur}
+                        helperText={
+                            passwordHasError &&
+                            "Password should be at least 6 characters"
+                        }
+                        error={passwordHasError}
+                        autoComplete="current-password"
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        style={{ marginTop: "1rem" }}
+                        disabled={formHasError}
+                        type="submit"
+                    >
+                        {authButtonText}
+                    </Button>
+                </form>
             </Container>
 
             <Link
