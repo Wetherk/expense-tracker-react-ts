@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
 import { auth } from "./firebase/firebase.ts";
@@ -12,6 +12,7 @@ import LoadingScreen from "./components/UI/LoadingScreen.tsx";
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const loading = useSelector((state: RootState) => state.auth.loading);
 
@@ -28,7 +29,8 @@ const App: React.FC = () => {
                         );
                     dispatch(authActions.setIsLoggedIn(true));
                     dispatch(authActions.setLoading(false));
-                    navigate("/");
+
+                    if (location.pathname === "/login") navigate("/");
                 });
             } else {
                 dispatch(authActions.setUser({ accessToken: "", email: "" }));
@@ -37,7 +39,7 @@ const App: React.FC = () => {
                 navigate("/login?mode=logIn");
             }
         });
-    }, [dispatch, navigate]);
+    }, [dispatch, navigate, location]);
 
     if (loading) return <LoadingScreen />;
 
