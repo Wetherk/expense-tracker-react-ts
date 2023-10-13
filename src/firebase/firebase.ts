@@ -6,8 +6,10 @@ import { getAuth } from "firebase/auth";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
 const firebaseConfig = {
-    apiKey: "AIzaSyCAbPfJ0m5-M8AjJMsQiwSyo370B0h_pL0",
+    apiKey: apiKey,
     authDomain: "expense-tracker-12796.firebaseapp.com",
     projectId: "expense-tracker-12796",
     storageBucket: "expense-tracker-12796.appspot.com",
