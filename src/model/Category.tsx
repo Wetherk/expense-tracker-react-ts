@@ -12,7 +12,7 @@ import {
     MiscellaneousServices,
 } from "@mui/icons-material";
 
-export type ExpenseCategory =
+export type Category =
     | "housing"
     | "food"
     | "transportation"
@@ -25,7 +25,7 @@ export type ExpenseCategory =
     | "miscellaneous";
 
 type CategoryIconMapping = {
-    [K in ExpenseCategory]: ReactElement;
+    [K in Category]: ReactElement;
 };
 
 export const categoryIconMapping: CategoryIconMapping = {
@@ -40,3 +40,31 @@ export const categoryIconMapping: CategoryIconMapping = {
     debtPayments: <AccountBalance />,
     miscellaneous: <MiscellaneousServices />,
 };
+
+export type ExpenseCategoryDescriptionMapping = {
+    [K in Category]: string;
+};
+
+export const expenseCategoryDescriptionMapping: ExpenseCategoryDescriptionMapping =
+    {
+        housing: "Housing",
+        food: "Food",
+        transportation: "Transportation",
+        healthcare: "Healthcare",
+        personalCare: "Personal Care",
+        entertainment: "Entertainment",
+        education: "Education",
+        savingsAndInvestments: "Savings and Investments",
+        debtPayments: "Debt Payments",
+        miscellaneous: "Miscellaneous",
+    };
+
+export class ExpenseCategory {
+    type: Category;
+    description: string;
+
+    constructor(category: Category) {
+        this.type = category;
+        this.description = expenseCategoryDescriptionMapping[category];
+    }
+}

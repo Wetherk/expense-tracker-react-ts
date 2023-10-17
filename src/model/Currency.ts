@@ -42,3 +42,15 @@ export const currencyFullNameMapping: CurrencyMapping = {
     SEK: "Swedish Krona",
     NZD: "New Zealand Dollar",
 };
+
+export class ExpenseCurrency {
+    code: Currency;
+    symbol: string;
+    name: string;
+
+    constructor(code: Currency) {
+        this.code = code;
+        this.symbol = currencySymbolMapping[code];
+        this.name = currencyFullNameMapping[code];
+    }
+}
