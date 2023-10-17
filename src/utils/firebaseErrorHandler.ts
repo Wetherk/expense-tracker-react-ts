@@ -60,6 +60,8 @@ const firebaseErrorMessages: { [key: string]: string } = {
     "auth/uid-already-exists": "UID already exists",
     "auth/unauthorized-continue-uri": "Unauthorized continue URL",
     "auth/user-not-found": "User not found",
+    "auth/network-request-failed":
+        "We are unable to connect to firebase. Please check your network and try again",
 };
 
 export function getFirebaseErrorMessage(errorCode: string): string {
