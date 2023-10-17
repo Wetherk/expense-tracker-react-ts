@@ -18,6 +18,8 @@ const App: React.FC = () => {
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
+            console.log("Auth state changed");
+            console.log(user);
             if (user) {
                 user.getIdToken().then((accessToken) => {
                     if (user.email)
@@ -29,14 +31,14 @@ const App: React.FC = () => {
                         );
                     dispatch(authActions.setIsLoggedIn(true));
                     dispatch(authActions.setLoading(false));
-
                     if (location.pathname === "/login") navigate("/");
                 });
             } else {
                 dispatch(authActions.setUser({ accessToken: "", email: "" }));
                 dispatch(authActions.setIsLoggedIn(false));
                 dispatch(authActions.setLoading(false));
-                navigate("/login?mode=logIn");
+                if (location.pathname !== "/login")
+                    navigate("/login?mode=logIn");
             }
         });
     }, [dispatch, navigate, location]);
