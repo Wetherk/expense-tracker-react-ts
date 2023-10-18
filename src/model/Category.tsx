@@ -24,6 +24,19 @@ export type Category =
     | "debtPayments"
     | "miscellaneous";
 
+export const categoryOptions: Category[] = [
+    "housing",
+    "food",
+    "transportation",
+    "healthcare",
+    "personalCare",
+    "entertainment",
+    "education",
+    "savingsAndInvestments",
+    "debtPayments",
+    "miscellaneous",
+];
+
 type CategoryIconMapping = {
     [K in Category]: ReactElement;
 };

@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 
 import ExpensesTable from "../components/Expenses/ExpensesTable";
+import NewExpense from "../components/Expenses/NewExpense";
 
 const Expenses = () => {
     return (
@@ -8,10 +9,11 @@ const Expenses = () => {
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "space-between",
+                alignItems: "center",
                 height: "100%",
             }}
         >
+            <NewExpense />
             <ExpensesTable />
         </Box>
     );

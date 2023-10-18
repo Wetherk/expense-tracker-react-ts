@@ -11,6 +11,20 @@ export type Currency =
     | "SEK"
     | "NZD";
 
+export const currencyCodes: Currency[] = [
+    "USD",
+    "EUR",
+    "PLN",
+    "JPY",
+    "GBP",
+    "AUD",
+    "CAD",
+    "CHF",
+    "CNY",
+    "SEK",
+    "NZD",
+];
+
 type CurrencyMapping = {
     [K in Currency]: string;
 };

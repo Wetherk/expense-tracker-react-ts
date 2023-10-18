@@ -4,6 +4,8 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import React from "react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { CssBaseline } from "@mui/material";
@@ -74,8 +76,10 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
         <CssBaseline />
-        <Provider store={store}>
-            <RouterProvider router={router} />
-        </Provider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Provider store={store}>
+                <RouterProvider router={router} />
+            </Provider>
+        </LocalizationProvider>
     </React.StrictMode>
 );
