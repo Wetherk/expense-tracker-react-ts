@@ -56,6 +56,7 @@ const NewExpense: React.FC = () => {
             setCategoryIsTouched(true);
             return;
         }
+        
 
         console.log(amount);
         console.log(currency);
