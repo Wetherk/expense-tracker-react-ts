@@ -71,13 +71,3 @@ export const expenseCategoryDescriptionMapping: ExpenseCategoryDescriptionMappin
         debtPayments: "Debt Payments",
         miscellaneous: "Miscellaneous",
     };
-
-export class ExpenseCategory {
-    type: Category;
-    description: string;
-
-    constructor(category: Category) {
-        this.type = category;
-        this.description = expenseCategoryDescriptionMapping[category];
-    }
-}

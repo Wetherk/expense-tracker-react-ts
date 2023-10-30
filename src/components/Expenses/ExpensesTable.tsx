@@ -12,13 +12,22 @@ import {
     TableBody,
     Box,
 } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Expense } from "../../model/Expense";
 import { getExpenses } from "../../service/Expenses";
 import { categoryIconMapping } from "../../model/Category";
 import useRequest from "../../hooks/useRequest";
+import { AppDispatch, RootState } from "../../store/redux";
+import { expensesActions } from "../../store/expensesSlice";
+import { paymentMethodDescriptionMapping } from "../../model/PaymentMethod";
 
 const ExpensesList: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const storedExpenses = useSelector(
+        (state: RootState) => state.expenses.items
+    );
+
     const {
         data: expenses,
         isLoading: expensesLoading,
@@ -29,6 +38,12 @@ const ExpensesList: React.FC = () => {
     useEffect(() => {
         fetchExpenses();
     }, [fetchExpenses]);
+
+    useEffect(() => {
+        if (expenses) {
+            dispatch(expensesActions.setExpenses(expenses));
+        }
+    }, [expenses, dispatch]);
 
     return (
         <Box
@@ -51,13 +66,14 @@ const ExpensesList: React.FC = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>Category</TableCell>
+                            <TableCell>Payment Method</TableCell>
                             <TableCell align="right">Sum</TableCell>
                             <TableCell align="right">Date</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {expenses &&
-                            expenses.map((expense) => (
+                        {storedExpenses &&
+                            storedExpenses.map((expense) => (
                                 <TableRow
                                     key={expense.id}
                                     sx={{
@@ -86,6 +102,13 @@ const ExpensesList: React.FC = () => {
                                             }
                                         </Avatar>
                                         {expense.category.description}
+                                    </TableCell>
+                                    <TableCell>
+                                        {
+                                            paymentMethodDescriptionMapping[
+                                                expense.paymentMethod
+                                            ]
+                                        }
                                     </TableCell>
                                     <TableCell align="right">
                                         {`${expense.amount} ${expense.currency.symbol}`}

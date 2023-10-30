@@ -1,32 +1,50 @@
 import { v4 } from "uuid";
 
-import { Category, ExpenseCategory } from "./Category";
+import { Category, expenseCategoryDescriptionMapping } from "./Category";
 import { PaymentMethod } from "./PaymentMethod";
-import { Currency, ExpenseCurrency } from "./Currency";
+import {
+    Currency,
+    currencyFullNameMapping,
+    currencySymbolMapping,
+} from "./Currency";
 import { formatDate } from "../utils/formatters";
 
-export class Expense {
+export type Expense = {
     id: string;
     amount: number;
     date: string;
     paymentMethod: PaymentMethod;
-    category: ExpenseCategory;
-    currency: ExpenseCurrency;
+    category: {
+        type: Category;
+        description: string;
+    };
+    currency: {
+        currency: Currency;
+        symbol: string;
+        name: string;
+    };
+};
 
-    constructor(
-        amount: number,
-        category: Category,
-        date: Date,
-        paymentMethod: PaymentMethod,
-        currency: Currency
-    ) {
-        this.amount = amount;
-        this.paymentMethod = paymentMethod;
-
-        this.category = new ExpenseCategory(category);
-        this.currency = new ExpenseCurrency(currency);
-
-        this.date = formatDate(date);
-        this.id = v4();
-    }
-}
+export const createExpense = (
+    amount: number,
+    category: Category,
+    date: Date,
+    paymentMethod: PaymentMethod,
+    currency: Currency
+): Expense => {
+    return {
+        amount,
+        paymentMethod,
+        category: {
+            type: category,
+            description: expenseCategoryDescriptionMapping[category],
+        },
+        currency: {
+            currency,
+            symbol: currencySymbolMapping[currency],
+            name: currencyFullNameMapping[currency],
+        },
+        date: formatDate(date),
+        id: v4(),
+    };
+};

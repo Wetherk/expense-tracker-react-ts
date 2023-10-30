@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
     Autocomplete,
     TextField,
@@ -23,8 +24,18 @@ import {
     expenseCategoryDescriptionMapping,
     Category,
 } from "../../model/Category";
+import {
+    PaymentMethod,
+    paymentMethods,
+    paymentMethodDescriptionMapping,
+} from "../../model/PaymentMethod";
+import { createExpense } from "../../model/Expense";
+import { addExpense } from "../../service/Expenses";
+import { AppDispatch } from "../../store/redux";
+import { expensesActions } from "../../store/expensesSlice";
 
 const NewExpense: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
     const [amount, setAmount] = useState<string>("");
     const [amountIsTouched, setAmountIsTouched] = useState<boolean>(false);
     const amountIsValid = amountIsTouched && !!amount && !isNaN(+amount);
@@ -40,12 +51,27 @@ const NewExpense: React.FC = () => {
     const categoryIsValid = categoryIsTouched && !!category;
     const categoryHasError = categoryIsTouched && !categoryIsValid;
 
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+    const [paymentMethodIsTouched, setPaymentMethodIsTouched] =
+        useState<boolean>(false);
+    const paymentMethodIsValid = paymentMethodIsTouched && !!paymentMethod;
+    const paymentMethodHasError =
+        paymentMethodIsTouched && !paymentMethodIsValid;
+
     const [date, setDate] = useState<Dayjs | null>(dayjs());
     const dateIsValid = !!date;
 
     const formIsValid =
-        amountIsValid && currencyIsValid && categoryIsValid && dateIsValid;
-    const formHasError = amountHasError || categoryHasError || currencyHasError;
+        amountIsValid &&
+        currencyIsValid &&
+        categoryIsValid &&
+        paymentMethodIsValid &&
+        dateIsValid;
+    const formHasError =
+        amountHasError ||
+        categoryHasError ||
+        paymentMethodHasError ||
+        currencyHasError;
 
     const handleCreateExpense = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -54,14 +80,22 @@ const NewExpense: React.FC = () => {
             setAmountIsTouched(true);
             setCurrencyIsTouched(true);
             setCategoryIsTouched(true);
+            setPaymentMethodIsTouched(true);
             return;
         }
-        
 
-        console.log(amount);
-        console.log(currency);
-        console.log(category);
-        console.log(date);
+        const createdExpense = createExpense(
+            +amount,
+            category,
+            date.toDate(),
+            paymentMethod,
+            currency
+        );
+
+        addExpense(createdExpense).then((expenses) => {
+            dispatch(expensesActions.setExpenses(expenses));
+        });
+
         clearForm();
     };
 
@@ -74,6 +108,9 @@ const NewExpense: React.FC = () => {
 
         setCategory("");
         setCategoryIsTouched(false);
+
+        setPaymentMethod("");
+        setPaymentMethodIsTouched(false);
 
         setDate(dayjs());
     };
@@ -115,6 +152,21 @@ const NewExpense: React.FC = () => {
 
     const handleCategoryBlur = () => {
         setCategoryIsTouched(true);
+    };
+
+    const handlePaymentMethodChange = (
+        e: React.SyntheticEvent,
+        value: PaymentMethod | null
+    ) => {
+        if (value) {
+            setPaymentMethod(value);
+        } else {
+            setPaymentMethod("");
+        }
+    };
+
+    const handlePaymentMethodBlur = () => {
+        setPaymentMethodIsTouched(true);
     };
 
     const handleDateChange = (value: Dayjs | null) => {
@@ -176,7 +228,6 @@ const NewExpense: React.FC = () => {
                             helperText={
                                 currencyHasError && "Field should not be empty."
                             }
-                            value={currency}
                             margin="normal"
                             label="Currency"
                         />
@@ -219,6 +270,41 @@ const NewExpense: React.FC = () => {
                                     categoryHasError &&
                                     "Field should not be empty."
                                 }
+                            />
+                        );
+                    }}
+                />
+
+                <Autocomplete
+                    disablePortal
+                    sx={{ width: "100%" }}
+                    options={paymentMethods}
+                    onChange={handlePaymentMethodChange}
+                    onBlur={handlePaymentMethodBlur}
+                    renderOption={(props, option) => (
+                        <Box component="li" {...props}>
+                            <Typography variant="body1">
+                                {paymentMethodDescriptionMapping[option]}
+                            </Typography>
+                        </Box>
+                    )}
+                    renderInput={(params) => {
+                        const value = params.inputProps.value as PaymentMethod;
+
+                        params.inputProps.value =
+                            paymentMethodDescriptionMapping[value] || "";
+
+                        return (
+                            <TextField
+                                {...params}
+                                error={paymentMethodHasError}
+                                helperText={
+                                    paymentMethodHasError &&
+                                    "Field should not be empty."
+                                }
+                                value={paymentMethod}
+                                margin="normal"
+                                label="Payment Method"
                             />
                         );
                     }}
