@@ -2,12 +2,17 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import {
     Autocomplete,
+    Alert,
     TextField,
     Box,
     Typography,
     Avatar,
     InputAdornment,
     Button,
+    Dialog,
+    DialogActions,
+    DialogTitle,
+    DialogContent,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
@@ -34,24 +39,34 @@ import { addExpense } from "../../service/Expenses";
 import { AppDispatch } from "../../store/redux";
 import { expensesActions } from "../../store/expensesSlice";
 
-const NewExpense: React.FC = () => {
+interface NewNewExpenseDialogProps {
+    open: boolean;
+    onClose: () => void;
+}
+
+const NewExpenseDialog: React.FC<NewNewExpenseDialogProps> = (props) => {
+    const [dialogBusy, setDialogBusy] = useState(false);
+    const [dialogError, setDialogError] = useState("");
+
     const dispatch = useDispatch<AppDispatch>();
     const [amount, setAmount] = useState<string>("");
     const [amountIsTouched, setAmountIsTouched] = useState<boolean>(false);
     const amountIsValid = amountIsTouched && !!amount && !isNaN(+amount);
     const amountHasError = amountIsTouched && !amountIsValid;
 
-    const [currency, setCurrency] = useState<Currency | "">("");
+    const [currency, setCurrency] = useState<Currency | null>(null);
     const [currencyIsTouched, setCurrencyIsTouched] = useState<boolean>(false);
     const currencyIsValid = currencyIsTouched && !!currency;
     const currencyHasError = currencyIsTouched && !currencyIsValid;
 
-    const [category, setCategory] = useState<Category | "">("");
+    const [category, setCategory] = useState<Category | null>(null);
     const [categoryIsTouched, setCategoryIsTouched] = useState<boolean>(false);
     const categoryIsValid = categoryIsTouched && !!category;
     const categoryHasError = categoryIsTouched && !categoryIsValid;
 
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
+        null
+    );
     const [paymentMethodIsTouched, setPaymentMethodIsTouched] =
         useState<boolean>(false);
     const paymentMethodIsValid = paymentMethodIsTouched && !!paymentMethod;
@@ -73,9 +88,7 @@ const NewExpense: React.FC = () => {
         paymentMethodHasError ||
         currencyHasError;
 
-    const handleCreateExpense = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
+    const handleCreateExpense = () => {
         if (!formIsValid) {
             setAmountIsTouched(true);
             setCurrencyIsTouched(true);
@@ -92,10 +105,23 @@ const NewExpense: React.FC = () => {
             currency
         );
 
-        addExpense(createdExpense).then((expenses) => {
-            dispatch(expensesActions.setExpenses(expenses));
-        });
+        setDialogBusy(true);
+        addExpense(createdExpense)
+            .then((expenses) => {
+                dispatch(expensesActions.setExpenses(expenses));
+                props.onClose();
+                clearForm();
+            })
+            .catch((error) => {
+                setDialogError(error);
+            })
+            .finally(() => {
+                setDialogBusy(false);
+            });
+    };
 
+    const handleClose = () => {
+        props.onClose();
         clearForm();
     };
 
@@ -103,13 +129,13 @@ const NewExpense: React.FC = () => {
         setAmount("");
         setAmountIsTouched(false);
 
-        setCurrency("");
+        setCurrency(null);
         setCurrencyIsTouched(false);
 
-        setCategory("");
+        setCategory(null);
         setCategoryIsTouched(false);
 
-        setPaymentMethod("");
+        setPaymentMethod(null);
         setPaymentMethodIsTouched(false);
 
         setDate(dayjs());
@@ -127,12 +153,8 @@ const NewExpense: React.FC = () => {
         e: React.SyntheticEvent,
         value: Currency | null
     ) => {
-        if (value) {
-            setCurrency(value);
-        } else {
-            setCurrency("");
-            setAmount("");
-        }
+        setCurrency(value);
+        if (!value) setAmount("");
     };
 
     const handleCurrencyBlur = () => {
@@ -143,11 +165,7 @@ const NewExpense: React.FC = () => {
         e: React.SyntheticEvent,
         value: Category | null
     ) => {
-        if (value) {
-            setCategory(value);
-        } else {
-            setCategory("");
-        }
+        setCategory(value);
     };
 
     const handleCategoryBlur = () => {
@@ -158,11 +176,7 @@ const NewExpense: React.FC = () => {
         e: React.SyntheticEvent,
         value: PaymentMethod | null
     ) => {
-        if (value) {
-            setPaymentMethod(value);
-        } else {
-            setPaymentMethod("");
-        }
+        setPaymentMethod(value);
     };
 
     const handlePaymentMethodBlur = () => {
@@ -174,8 +188,9 @@ const NewExpense: React.FC = () => {
     };
 
     return (
-        <Box sx={{ width: "40vw" }}>
-            <form onSubmit={handleCreateExpense}>
+        <Dialog open={props.open} onClose={props.onClose}>
+            <DialogTitle>Create New Expense</DialogTitle>
+            <DialogContent sx={{ width: "50vw" }}>
                 <TextField
                     sx={{ width: "100%" }}
                     label="Amount"
@@ -206,6 +221,7 @@ const NewExpense: React.FC = () => {
                     disablePortal
                     sx={{ width: "100%" }}
                     options={currencyCodes}
+                    value={currency}
                     onChange={handleCurrencyChange}
                     onBlur={handleCurrencyBlur}
                     renderOption={(props, option) => (
@@ -217,7 +233,7 @@ const NewExpense: React.FC = () => {
                                 {option}
                             </Typography>
                             <Typography variant="body1">
-                                {currencyFullNameMapping[option]}
+                                {option && currencyFullNameMapping[option]}
                             </Typography>
                         </Box>
                     )}
@@ -316,24 +332,29 @@ const NewExpense: React.FC = () => {
                     value={date}
                 />
 
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    <Button
-                        variant="contained"
-                        disabled={formHasError}
-                        color="primary"
-                        fullWidth
-                        sx={{
-                            marginTop: "1rem",
-                            width: "30%",
-                        }}
-                        type="submit"
+                {dialogError && (
+                    <Alert
+                        sx={{ width: "100%", marginTop: "1rem" }}
+                        severity="error"
                     >
-                        Create
-                    </Button>
-                </Box>
-            </form>
-        </Box>
+                        {dialogError}
+                    </Alert>
+                )}
+            </DialogContent>
+            <DialogActions>
+                <Button disabled={dialogBusy} onClick={handleClose}>
+                    Cancel
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={handleCreateExpense}
+                    disabled={formHasError || dialogBusy}
+                >
+                    {dialogBusy ? "Creating..." : "Create"}
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 
-export default NewExpense;
+export default NewExpenseDialog;

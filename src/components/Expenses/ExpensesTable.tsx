@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
     Avatar,
     CircularProgress,
@@ -11,6 +11,8 @@ import {
     TableRow,
     TableBody,
     Box,
+    Button,
+    Toolbar,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -21,9 +23,12 @@ import useRequest from "../../hooks/useRequest";
 import { AppDispatch, RootState } from "../../store/redux";
 import { expensesActions } from "../../store/expensesSlice";
 import { paymentMethodDescriptionMapping } from "../../model/PaymentMethod";
+import NewExpenseDialog from "./NewExpenseDialog";
 
 const ExpensesList: React.FC = () => {
+    const [newExpenseDialogOpen, setNewExpenseDialogOpen] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
+
     const storedExpenses = useSelector(
         (state: RootState) => state.expenses.items
     );
@@ -45,105 +50,140 @@ const ExpensesList: React.FC = () => {
         }
     }, [expenses, dispatch]);
 
-    return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-            }}
-        >
-            <TableContainer
-                sx={{
-                    maxHeight: "70vh",
-                    maxWidth: "95%",
-                    border: "1px solid #ccc",
-                }}
-            >
-                <Table stickyHeader aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Category</TableCell>
-                            <TableCell>Payment Method</TableCell>
-                            <TableCell align="right">Sum</TableCell>
-                            <TableCell align="right">Date</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {storedExpenses &&
-                            storedExpenses.map((expense) => (
-                                <TableRow
-                                    key={expense.id}
-                                    sx={{
-                                        "&:last-child td, &:last-child th": {
-                                            border: 0,
-                                        },
-                                    }}
-                                >
-                                    <TableCell
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                        }}
-                                        component="th"
-                                        scope="row"
-                                    >
-                                        <Avatar
-                                            sx={{
-                                                marginRight: "10px",
-                                            }}
-                                        >
-                                            {
-                                                categoryIconMapping[
-                                                    expense.category.type
-                                                ]
-                                            }
-                                        </Avatar>
-                                        {expense.category.description}
-                                    </TableCell>
-                                    <TableCell>
-                                        {
-                                            paymentMethodDescriptionMapping[
-                                                expense.paymentMethod
-                                            ]
-                                        }
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        {`${expense.amount} ${expense.currency.symbol}`}
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        {expense.date}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+    const handleOpen = () => {
+        setNewExpenseDialogOpen(true);
+    };
 
+    const handleClose = () => {
+        setNewExpenseDialogOpen(false);
+    };
+
+    return (
+        <>
+            <NewExpenseDialog
+                open={newExpenseDialogOpen}
+                onClose={handleClose}
+            />
             <Box
                 sx={{
-                    width: "80%",
-                    marginTop: "1rem",
                     display: "flex",
+                    flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
+                    width: "100%",
+                    height: "100%",
                 }}
             >
-                {expensesLoading && <CircularProgress />}
-                {!expenses?.length && !expensesLoading && !expensesError && (
-                    <Typography variant="h6" color="textSecondary">
-                        No expenses found...
+                <Toolbar
+                    sx={{
+                        pl: { sm: 2 },
+                        pr: { xs: 1, sm: 1 },
+                        width: "100%",
+                        outline: "1px solid #ccc",
+                    }}
+                >
+                    <Typography
+                        sx={{ flex: "1 1 100%" }}
+                        variant="h5"
+                        component="div"
+                    >
+                        Expenses
                     </Typography>
-                )}
-                {expensesError && (
-                    <Alert sx={{ width: "100%" }} severity="error">
-                        {expensesError}
-                    </Alert>
-                )}
+                    <Button onClick={handleOpen} variant="contained">
+                        Create
+                    </Button>
+                </Toolbar>
+                <TableContainer
+                    sx={{
+                        outline: "1px solid #ccc",
+                    }}
+                >
+                    <Table stickyHeader aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Category</TableCell>
+                                <TableCell>Payment Method</TableCell>
+                                <TableCell align="right">Sum</TableCell>
+                                <TableCell align="right">Date</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {storedExpenses &&
+                                storedExpenses.map((expense) => (
+                                    <TableRow
+                                        key={expense.id}
+                                        sx={{
+                                            "&:last-child td, &:last-child th":
+                                                {
+                                                    border: 0,
+                                                },
+                                        }}
+                                    >
+                                        <TableCell
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                            }}
+                                            component="th"
+                                            scope="row"
+                                        >
+                                            <Avatar
+                                                sx={{
+                                                    marginRight: "10px",
+                                                }}
+                                            >
+                                                {
+                                                    categoryIconMapping[
+                                                        expense.category.type
+                                                    ]
+                                                }
+                                            </Avatar>
+                                            {expense.category.description}
+                                        </TableCell>
+                                        <TableCell>
+                                            {
+                                                paymentMethodDescriptionMapping[
+                                                    expense.paymentMethod
+                                                ]
+                                            }
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {`${expense.amount} ${expense.currency.symbol}`}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {expense.date}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+
+                <Box
+                    sx={{
+                        width: "80%",
+                        marginTop: "1rem",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    {expensesLoading && <CircularProgress />}
+                    {!expenses?.length &&
+                        !expensesLoading &&
+                        !expensesError && (
+                            <Typography variant="h6" color="textSecondary">
+                                No expenses found...
+                            </Typography>
+                        )}
+                    {expensesError && (
+                        <Alert sx={{ width: "100%" }} severity="error">
+                            {expensesError}
+                        </Alert>
+                    )}
+                </Box>
             </Box>
-        </Box>
+        </>
     );
 };
 
