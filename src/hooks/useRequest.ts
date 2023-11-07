@@ -1,6 +1,9 @@
 import { useState, useCallback } from "react";
 
-function useRequest<T>(request: () => Promise<T>): {
+function useRequest<T>(
+    request: () => Promise<Response>,
+    responseParser?: (responseData: object) => T
+): {
     isLoading: boolean;
     error: string;
     data: T | null;
@@ -12,10 +15,16 @@ function useRequest<T>(request: () => Promise<T>): {
 
     const sendRequest = useCallback(() => {
         request()
-            .then((response) => setData(response))
+            .then(async (response) => {
+                const responseData = await response.json();
+                let data = responseData;
+
+                if (responseParser) data = responseParser(responseData);
+                setData(data);
+            })
             .catch((error) => setError(error))
             .finally(() => setIsLoading(false));
-    }, [request]);
+    }, [request, responseParser]);
 
     return { isLoading, error, data, sendRequest };
 }

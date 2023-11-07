@@ -17,7 +17,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import { Expense } from "../../model/Expense";
-import { getExpenses } from "../../service/Expenses";
+import { getExpenses, parseExpenses } from "../../service/Expenses";
 import { categoryIconMapping } from "../../model/Category";
 import useRequest from "../../hooks/useRequest";
 import { AppDispatch, RootState } from "../../store/redux";
@@ -38,7 +38,7 @@ const ExpensesList: React.FC = () => {
         isLoading: expensesLoading,
         error: expensesError,
         sendRequest: fetchExpenses,
-    } = useRequest<Expense[]>(getExpenses);
+    } = useRequest<Expense[]>(getExpenses, parseExpenses);
 
     useEffect(() => {
         fetchExpenses();

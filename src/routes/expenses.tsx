@@ -9,6 +9,7 @@ const Expenses = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                justifyContent: "start",
                 height: "90%",
             }}
         >
