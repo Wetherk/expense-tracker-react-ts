@@ -68,7 +68,7 @@ const ExpensesList: React.FC = () => {
                 sx={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "center",
+                    justifyContent: "start",
                     alignItems: "center",
                     width: "100%",
                     height: "100%",
@@ -168,7 +168,9 @@ const ExpensesList: React.FC = () => {
                         alignItems: "center",
                     }}
                 >
-                    {expensesLoading && <CircularProgress />}
+                    {!storedExpenses?.length && expensesLoading && (
+                        <CircularProgress />
+                    )}
                     {!expenses?.length &&
                         !expensesLoading &&
                         !expensesError && (

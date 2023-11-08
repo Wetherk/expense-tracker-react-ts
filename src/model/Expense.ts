@@ -1,5 +1,3 @@
-import { v4 } from "uuid";
-
 import { Category, expenseCategoryDescriptionMapping } from "./Category";
 import { PaymentMethod } from "./PaymentMethod";
 import {
@@ -10,7 +8,7 @@ import {
 import { formatDate } from "../utils/formatters";
 
 export type Expense = {
-    id: string;
+    id?: string;
     amount: number;
     date: string;
     paymentMethod: PaymentMethod;
@@ -45,6 +43,5 @@ export const createExpense = (
             name: currencyFullNameMapping[currency],
         },
         date: formatDate(date),
-        id: v4(),
     };
 };

@@ -10,7 +10,7 @@ const Expenses = () => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "start",
-                height: "90%",
+                height: "100%",
             }}
         >
             <ExpensesTable />

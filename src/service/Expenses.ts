@@ -18,9 +18,21 @@ export const parseExpenses = (responseData: object | null) => {
 };
 
 export const addExpense = (expense: Expense): Promise<Expense[]> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([expense, ...store.getState().expenses.items]);
-        }, 1000);
+    return new Promise((resolve, reject) => {
+        fetch(`${basePath}/expenses.json`, {
+            method: "POST",
+            body: JSON.stringify(expense),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then(async (response) => {
+                const parsedResponse = await response.json();
+                expense.id = parsedResponse.name;
+                resolve([expense, ...store.getState().expenses.items]);
+            })
+            .catch((error) => {
+                reject(error);
+            });
     });
 };
