@@ -36,3 +36,9 @@ export const addExpense = (expense: Expense): Promise<Expense[]> => {
             });
     });
 };
+
+export const removeExpense = (expenseId: string) => {
+    return fetch(`${basePath}/expenses/${expenseId}.json`, {
+        method: "DELETE",
+    });
+};

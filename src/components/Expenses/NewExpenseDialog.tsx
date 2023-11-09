@@ -190,7 +190,7 @@ const NewExpenseDialog: React.FC<NewNewExpenseDialogProps> = (props) => {
     return (
         <Dialog open={props.open} onClose={props.onClose}>
             <DialogTitle>Create New Expense</DialogTitle>
-            <DialogContent sx={{ width: "50vw", maxWidth: "50vw" }}>
+            <DialogContent sx={{ minWidth: "30vw" }}>
                 <TextField
                     sx={{ width: "100%" }}
                     label="Amount"

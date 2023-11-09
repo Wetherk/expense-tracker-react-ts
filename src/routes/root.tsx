@@ -6,10 +6,10 @@ import NavBar from "../components/Navigation/NavBar";
 const Root: React.FC = () => {
     return (
         <Box sx={{ height: "100vh" }}>
-            <Box sx={{ height: "8%" }}>
+            <Box sx={{ maxHeight: "8%" }}>
                 <NavBar />
             </Box>
-            <Box sx={{ height: "92%" }}>
+            <Box sx={{ maxHeight: "92%" }}>
                 <Outlet />
             </Box>
         </Box>
