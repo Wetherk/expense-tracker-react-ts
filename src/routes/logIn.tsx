@@ -7,7 +7,10 @@ import {
     Box,
     Alert,
     Link,
+    InputAdornment,
+    IconButton,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
@@ -22,6 +25,7 @@ const LogIn: React.FC = () => {
 
     const dispatch = useDispatch<AppDispatch>();
     const authError = useSelector((state: RootState) => state.auth.error);
+    const [showPassword, setShowPassword] = useState(false);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -99,6 +103,8 @@ const LogIn: React.FC = () => {
         navigate(helperLinkHref);
     };
 
+    const handleClickShowPassword = () => setShowPassword((value) => !value);
+
     return (
         <Box
             display="flex"
@@ -132,7 +138,7 @@ const LogIn: React.FC = () => {
                     />
                     <TextField
                         label="Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -145,6 +151,23 @@ const LogIn: React.FC = () => {
                         }
                         error={passwordHasError}
                         autoComplete="current-password"
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={handleClickShowPassword}
+                                        edge="end"
+                                    >
+                                        {showPassword ? (
+                                            <VisibilityOff />
+                                        ) : (
+                                            <Visibility />
+                                        )}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     <Button
                         variant="contained"

@@ -1,5 +1,7 @@
+import ExpensesPieChart from "../components/Expenses/ExpensesPieChart";
+
 const Statistics: React.FC = () => {
-    return <h1>Statistics</h1>;
+    return <ExpensesPieChart />;
 };
 
 export default Statistics;

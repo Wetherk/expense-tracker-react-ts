@@ -254,6 +254,7 @@ const ExpensesList: React.FC = () => {
                 <TableContainer
                     sx={{
                         outline: "1px solid #ccc",
+                        maxHeight: "82vh",
                     }}
                 >
                     <Table stickyHeader aria-label="simple table">
