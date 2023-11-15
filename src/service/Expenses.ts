@@ -1,10 +1,12 @@
 import { Expense } from "../model/Expense";
 import store from "../store/redux";
+import { getRates } from "./CurrencyConversionRate";
 
 const basePath =
     "https://expense-tracker-12796-default-rtdb.europe-west1.firebasedatabase.app/";
 
 export const getExpenses = (): Promise<Response> => {
+    getRates();
     return fetch(`${basePath}/expenses.json`);
 };
 

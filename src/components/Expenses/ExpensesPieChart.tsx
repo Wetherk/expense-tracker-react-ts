@@ -1,4 +1,4 @@
-import { PieChart } from "@mui/x-charts";
+import { PieChart } from "@mui/x-charts/PieChart";
 import { useSelector } from "react-redux";
 
 import { RootState } from "../../store/redux";
@@ -19,24 +19,37 @@ const ExpensesPieChart: React.FC = () => {
 
     const spendingPerCategory: SpendingPerCategory = {};
 
+    let totalSpendingAmount = 0;
+
     expenses.reduce((prevValue: SpendingPerCategory, currentValue: Expense) => {
         if (!prevValue[currentValue.category.type])
             prevValue[currentValue.category.type] = 0;
 
         prevValue[currentValue.category.type]! += currentValue.amount;
 
+        totalSpendingAmount += currentValue.amount;
+
         return prevValue;
     }, spendingPerCategory);
 
     const chartExpenseData = Object.entries(spendingPerCategory).map(
         ([category, amount]) => {
+            const spendingPercent = (
+                (100 * amount) /
+                totalSpendingAmount
+            ).toFixed();
             return {
                 id: category,
                 value: amount,
-                label: expenseCategoryDescriptionMapping[category as Category],
+                label: `${
+                    expenseCategoryDescriptionMapping[category as Category]
+                } ${spendingPercent}%`,
             };
         }
     );
+
+    // 100 4261
+    // x y
 
     return (
         <>
