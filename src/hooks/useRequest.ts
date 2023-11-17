@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 
 function useRequest<T>(
     request: () => Promise<Response>,
-    responseParser?: (responseData: object) => T
+    responseParser?: (responseData: object, response?: Response) => T
 ): {
     isLoading: boolean;
     error: string;
@@ -19,10 +19,13 @@ function useRequest<T>(
                 const responseData = await response.json();
                 let data = responseData;
 
-                if (responseParser) data = responseParser(responseData);
+                if (responseParser)
+                    data = responseParser(responseData, response);
+
                 setData(data);
+                setError("");
             })
-            .catch((error) => setError(error))
+            .catch((error) => setError(error.message || "Request failed"))
             .finally(() => setIsLoading(false));
     }, [request, responseParser]);
 

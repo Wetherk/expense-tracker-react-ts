@@ -1,25 +1,33 @@
-import { currencyCodes } from "../model/Currency";
+import { CurrencyRates, currencyCodes } from "../model/Currency";
 import store from "../store/redux";
 
 const baseUrl = "https://api.freecurrencyapi.com/v1/";
 
 const apiKey = import.meta.env.VITE_FREE_CURRENCY_API_KEY;
 
-export const getRates = async () => {
+export type CurrencyRatesResponseData = {
+    data?: CurrencyRates;
+    message?: string;
+};
+
+export const getCurrencyRates = async (): Promise<Response> => {
     const baseCurrency = store.getState().expenses.baseCurrency;
     const symbols = currencyCodes
         .reduce((acc, currency) => acc.concat(`,${currency}`), "")
-        .replace(`,${baseCurrency}`, "")
         .slice(1);
 
-    const response = await fetch(
+    return fetch(
         `${baseUrl}/latest?apikey=${apiKey}&base_currency=${baseCurrency}&currencies=${symbols}`
     );
-    const data = await response.json();
+};
 
-    if (!response.ok) {
-        throw new Error(data.message || "Error fetching rates");
+export const parseCurrencyRates = (
+    responseData: CurrencyRatesResponseData,
+    response?: Response
+): CurrencyRates => {
+    if (response && !response.ok) {
+        throw new Error(responseData.message || "Error fetching rates");
     }
 
-    return data;
+    return responseData.data!;
 };

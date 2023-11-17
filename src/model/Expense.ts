@@ -17,7 +17,7 @@ export type Expense = {
         description: string;
     };
     currency: {
-        currency: Currency;
+        code: Currency;
         symbol: string;
         name: string;
     };
@@ -38,7 +38,7 @@ export const createExpense = (
             description: expenseCategoryDescriptionMapping[category],
         },
         currency: {
-            currency,
+            code: currency,
             symbol: currencySymbolMapping[currency],
             name: currencyFullNameMapping[currency],
         },

@@ -48,9 +48,6 @@ const ExpensesPieChart: React.FC = () => {
         }
     );
 
-    // 100 4261
-    // x y
-
     return (
         <>
             <PieChart

@@ -25,6 +25,10 @@ export const currencyCodes: Currency[] = [
     "NZD",
 ];
 
+export type CurrencyRates = {
+    [K in Currency]?: number;
+};
+
 type CurrencyMapping = {
     [K in Currency]: string;
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Avatar,
     CircularProgress,
@@ -16,6 +16,7 @@ import {
     Tooltip,
     IconButton,
     Checkbox,
+    Switch,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { alpha } from "@mui/material/styles";
@@ -27,6 +28,15 @@ import {
     parseExpenses,
     removeExpense,
 } from "../../service/Expenses";
+import {
+    Currency,
+    CurrencyRates,
+    currencySymbolMapping,
+} from "../../model/Currency";
+import {
+    parseCurrencyRates,
+    getCurrencyRates,
+} from "../../service/CurrencyConversionRate";
 import { categoryIconMapping } from "../../model/Category";
 import useRequest from "../../hooks/useRequest";
 import { AppDispatch, RootState } from "../../store/redux";
@@ -40,10 +50,44 @@ interface EnhancedTableToolbarProps {
     deleteError: string;
     onCreate: () => void;
     onDelete: () => void;
+    onConvertToBaseCurrency: (convert: boolean) => void;
 }
 
 const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
-    const { numSelected, onCreate, onDelete, deleteBusy, deleteError } = props;
+    const {
+        numSelected,
+        onCreate,
+        onDelete,
+        deleteBusy,
+        deleteError,
+        onConvertToBaseCurrency,
+    } = props;
+    const [convertToBaseCurrency, setConvertToBaseCurrency] = useState(false);
+    const dispatch = useDispatch<AppDispatch>();
+
+    const {
+        data: rates,
+        isLoading: ratesLoading,
+        error: ratesError,
+        sendRequest: fetchCurrencyRates,
+    } = useRequest<CurrencyRates>(getCurrencyRates, parseCurrencyRates);
+
+    useEffect(() => {
+        fetchCurrencyRates();
+    }, [fetchCurrencyRates]);
+
+    useEffect(() => {
+        if (rates) {
+            dispatch(expensesActions.setCurrencyRates(rates));
+        }
+    }, [rates, dispatch]);
+
+    const handleConvertToBaseCurrencyChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setConvertToBaseCurrency(event.target.checked);
+        onConvertToBaseCurrency(event.target.checked);
+    };
 
     return (
         <Toolbar
@@ -93,11 +137,66 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
             )}
             {deleteBusy && <CircularProgress size="2rem" />}
             {!(numSelected > 0) && (
-                <Button onClick={onCreate} variant="contained">
-                    Create
-                </Button>
+                <>
+                    <CurrencyRateConversionSwitch
+                        onConvertToBaseCurrencyChange={
+                            handleConvertToBaseCurrencyChange
+                        }
+                        convertToBaseCurrency={convertToBaseCurrency}
+                        ratesLoading={ratesLoading}
+                        ratesError={ratesError}
+                    />
+                    <Button onClick={onCreate} variant="contained">
+                        Create
+                    </Button>
+                </>
             )}
         </Toolbar>
+    );
+};
+
+interface CurrencyRateConversionSwitchProps {
+    convertToBaseCurrency: boolean;
+    onConvertToBaseCurrencyChange: (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => void;
+    ratesLoading: boolean;
+    ratesError: string;
+}
+
+const CurrencyRateConversionSwitch: React.FC<
+    CurrencyRateConversionSwitchProps
+> = (props) => {
+    const {
+        convertToBaseCurrency,
+        onConvertToBaseCurrencyChange,
+        ratesError,
+        ratesLoading,
+    } = props;
+
+    return (
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+            {ratesLoading && <CircularProgress size="2rem" />}
+            {!ratesError && !ratesLoading && (
+                <Switch
+                    checked={convertToBaseCurrency}
+                    onChange={onConvertToBaseCurrencyChange}
+                    inputProps={{ "aria-label": "controlled" }}
+                />
+            )}
+            {ratesError && !ratesLoading && (
+                <Alert
+                    sx={{ width: 320, lineHeight: 0.5, marginRight: 1 }}
+                    severity="error"
+                >
+                    {ratesError}
+                </Alert>
+            )}
+
+            <Typography color="inherit" variant="subtitle1" component="div">
+                Convert to base rate
+            </Typography>
+        </Box>
     );
 };
 
@@ -140,10 +239,17 @@ const ExpensesList: React.FC = () => {
     const [deleteBusy, setDeleteBusy] = useState(false);
     const [deleteError, setDeleteError] = useState("");
     const [newExpenseDialogOpen, setNewExpenseDialogOpen] = useState(false);
+    const [convertToBaseCurrency, setConvertToBaseCurrency] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
 
     const storedExpenses = useSelector(
         (state: RootState) => state.expenses.items
+    );
+    const baseCurrency = useSelector(
+        (state: RootState) => state.expenses.baseCurrency
+    );
+    const currencyRates = useSelector(
+        (state: RootState) => state.expenses.currencyRates
     );
 
     const {
@@ -228,6 +334,14 @@ const ExpensesList: React.FC = () => {
             });
     };
 
+    const handleConvertToBaseCurrency = (convert: boolean) => {
+        setConvertToBaseCurrency(convert);
+    };
+
+    const toBaseCurrency = (amount: number, currency: Currency) => {
+        return (amount / currencyRates[currency]!).toFixed(2);
+    };
+
     return (
         <>
             <NewExpenseDialog
@@ -250,6 +364,7 @@ const ExpensesList: React.FC = () => {
                     deleteError={deleteError}
                     onCreate={handleOpenCreateDialog}
                     onDelete={handleDelete}
+                    onConvertToBaseCurrency={handleConvertToBaseCurrency}
                 />
                 <TableContainer
                     sx={{
@@ -322,7 +437,24 @@ const ExpensesList: React.FC = () => {
                                                 }
                                             </TableCell>
                                             <TableCell align="right">
-                                                {`${expense.amount} ${expense.currency.symbol}`}
+                                                {`${
+                                                    convertToBaseCurrency
+                                                        ? toBaseCurrency(
+                                                              expense.amount,
+                                                              expense.currency
+                                                                  .code
+                                                          )
+                                                        : expense.amount.toFixed(
+                                                              2
+                                                          )
+                                                } ${
+                                                    convertToBaseCurrency
+                                                        ? currencySymbolMapping[
+                                                              baseCurrency
+                                                          ]
+                                                        : expense.currency
+                                                              .symbol
+                                                }`}
                                             </TableCell>
                                             <TableCell align="right">
                                                 {expense.date}

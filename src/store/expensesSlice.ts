@@ -1,16 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { Expense } from "../model/Expense";
-import { Currency } from "../model/Currency";
+import { Currency, CurrencyRates } from "../model/Currency";
 
 interface ExpensesState {
     items: Expense[];
     baseCurrency: Currency;
+    currencyRates: CurrencyRates;
 }
 
 const initialState: ExpensesState = {
     items: [],
     baseCurrency: "USD",
+    currencyRates: {},
 };
 
 const expensesSlice = createSlice({
@@ -33,6 +35,9 @@ const expensesSlice = createSlice({
         },
         setBaseCurrency(state, action: PayloadAction<Currency>) {
             state.baseCurrency = action.payload;
+        },
+        setCurrencyRates(state, action: PayloadAction<CurrencyRates>) {
+            state.currencyRates = action.payload;
         },
     },
 });
