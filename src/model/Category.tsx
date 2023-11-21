@@ -71,3 +71,20 @@ export const expenseCategoryDescriptionMapping: ExpenseCategoryDescriptionMappin
         debtPayments: "Debt Payments",
         miscellaneous: "Miscellaneous",
     };
+
+type CategoryColorMapping = {
+    [K in Category]: string;
+};
+
+export const categoryColorMapping: CategoryColorMapping = {
+    housing: "#FF7043",
+    food: "#FFCA28",
+    transportation: "#29B6F6",
+    healthcare: "#66BB6A",
+    personalCare: "#BA68C8",
+    entertainment: "#ff4f4f",
+    education: "#7986CB",
+    savingsAndInvestments: "#8D6E63",
+    debtPayments: "#A1887F",
+    miscellaneous: "#90A4AE",
+};

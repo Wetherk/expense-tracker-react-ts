@@ -28,6 +28,7 @@ import {
     categoryIconMapping,
     expenseCategoryDescriptionMapping,
     Category,
+    categoryColorMapping,
 } from "../../model/Category";
 import {
     PaymentMethod,
@@ -261,6 +262,7 @@ const NewExpenseDialog: React.FC<NewNewExpenseDialogProps> = (props) => {
                             <Avatar
                                 sx={{
                                     marginRight: "10px",
+                                    bgcolor: categoryColorMapping[option],
                                 }}
                             >
                                 {categoryIconMapping[option]}

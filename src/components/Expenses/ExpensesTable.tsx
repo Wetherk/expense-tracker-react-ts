@@ -28,16 +28,16 @@ import {
     parseExpenses,
     removeExpense,
 } from "../../service/Expenses";
-import {
-    Currency,
-    CurrencyRates,
-    currencySymbolMapping,
-} from "../../model/Currency";
+import { CurrencyRates, currencySymbolMapping } from "../../model/Currency";
 import {
     parseCurrencyRates,
     getCurrencyRates,
+    convertToBaseCurrency,
 } from "../../service/CurrencyConversionRate";
-import { categoryIconMapping } from "../../model/Category";
+import {
+    categoryColorMapping,
+    categoryIconMapping,
+} from "../../model/Category";
 import useRequest from "../../hooks/useRequest";
 import { AppDispatch, RootState } from "../../store/redux";
 import { expensesActions } from "../../store/expensesSlice";
@@ -62,7 +62,8 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
         deleteError,
         onConvertToBaseCurrency,
     } = props;
-    const [convertToBaseCurrency, setConvertToBaseCurrency] = useState(false);
+    const [convertToBaseCurrencyActive, setConvertToBaseCurrencyActive] =
+        useState(false);
     const dispatch = useDispatch<AppDispatch>();
 
     const {
@@ -85,7 +86,7 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
     const handleConvertToBaseCurrencyChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        setConvertToBaseCurrency(event.target.checked);
+        setConvertToBaseCurrencyActive(event.target.checked);
         onConvertToBaseCurrency(event.target.checked);
     };
 
@@ -142,7 +143,9 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
                         onConvertToBaseCurrencyChange={
                             handleConvertToBaseCurrencyChange
                         }
-                        convertToBaseCurrency={convertToBaseCurrency}
+                        convertToBaseCurrencyActive={
+                            convertToBaseCurrencyActive
+                        }
                         ratesLoading={ratesLoading}
                         ratesError={ratesError}
                     />
@@ -156,7 +159,7 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
 };
 
 interface CurrencyRateConversionSwitchProps {
-    convertToBaseCurrency: boolean;
+    convertToBaseCurrencyActive: boolean;
     onConvertToBaseCurrencyChange: (
         event: React.ChangeEvent<HTMLInputElement>
     ) => void;
@@ -168,18 +171,24 @@ const CurrencyRateConversionSwitch: React.FC<
     CurrencyRateConversionSwitchProps
 > = (props) => {
     const {
-        convertToBaseCurrency,
+        convertToBaseCurrencyActive,
         onConvertToBaseCurrencyChange,
         ratesError,
         ratesLoading,
     } = props;
 
+    const reduxRates = useSelector(
+        (state: RootState) => state.expenses.currencyRates
+    );
+
     return (
         <Box sx={{ display: "flex", alignItems: "center" }}>
-            {ratesLoading && <CircularProgress size="2rem" />}
-            {!ratesError && !ratesLoading && (
+            {!Object.keys(reduxRates).length && ratesLoading && (
+                <CircularProgress sx={{ marginRight: 5 }} size="2rem" />
+            )}
+            {!!Object.keys(reduxRates).length && (
                 <Switch
-                    checked={convertToBaseCurrency}
+                    checked={convertToBaseCurrencyActive}
                     onChange={onConvertToBaseCurrencyChange}
                     inputProps={{ "aria-label": "controlled" }}
                 />
@@ -239,7 +248,8 @@ const ExpensesList: React.FC = () => {
     const [deleteBusy, setDeleteBusy] = useState(false);
     const [deleteError, setDeleteError] = useState("");
     const [newExpenseDialogOpen, setNewExpenseDialogOpen] = useState(false);
-    const [convertToBaseCurrency, setConvertToBaseCurrency] = useState(false);
+    const [convertToBaseCurrencyActive, setConvertToBaseCurrencyActive] =
+        useState(false);
     const dispatch = useDispatch<AppDispatch>();
 
     const storedExpenses = useSelector(
@@ -247,9 +257,6 @@ const ExpensesList: React.FC = () => {
     );
     const baseCurrency = useSelector(
         (state: RootState) => state.expenses.baseCurrency
-    );
-    const currencyRates = useSelector(
-        (state: RootState) => state.expenses.currencyRates
     );
 
     const {
@@ -335,11 +342,7 @@ const ExpensesList: React.FC = () => {
     };
 
     const handleConvertToBaseCurrency = (convert: boolean) => {
-        setConvertToBaseCurrency(convert);
-    };
-
-    const toBaseCurrency = (amount: number, currency: Currency) => {
-        return (amount / currencyRates[currency]!).toFixed(2);
+        setConvertToBaseCurrencyActive(convert);
     };
 
     return (
@@ -418,6 +421,11 @@ const ExpensesList: React.FC = () => {
                                                 <Avatar
                                                     sx={{
                                                         marginRight: "10px",
+                                                        bgcolor:
+                                                            categoryColorMapping[
+                                                                expense.category
+                                                                    .type
+                                                            ],
                                                     }}
                                                 >
                                                     {
@@ -438,8 +446,8 @@ const ExpensesList: React.FC = () => {
                                             </TableCell>
                                             <TableCell align="right">
                                                 {`${
-                                                    convertToBaseCurrency
-                                                        ? toBaseCurrency(
+                                                    convertToBaseCurrencyActive
+                                                        ? convertToBaseCurrency(
                                                               expense.amount,
                                                               expense.currency
                                                                   .code
@@ -448,7 +456,7 @@ const ExpensesList: React.FC = () => {
                                                               2
                                                           )
                                                 } ${
-                                                    convertToBaseCurrency
+                                                    convertToBaseCurrencyActive
                                                         ? currencySymbolMapping[
                                                               baseCurrency
                                                           ]

@@ -5,14 +5,16 @@ import { RootState } from "../../store/redux";
 import { Expense } from "../../model/Expense";
 import {
     Category,
+    categoryColorMapping,
     expenseCategoryDescriptionMapping,
 } from "../../model/Category";
+import { convertToBaseCurrency } from "../../service/CurrencyConversionRate";
+
+type SpendingPerCategory = {
+    [key in Category]?: number;
+};
 
 const ExpensesPieChart: React.FC = () => {
-    type SpendingPerCategory = {
-        [key in Category]?: number;
-    };
-
     const expenses: Expense[] = useSelector(
         (state: RootState) => state.expenses.items
     );
@@ -25,9 +27,14 @@ const ExpensesPieChart: React.FC = () => {
         if (!prevValue[currentValue.category.type])
             prevValue[currentValue.category.type] = 0;
 
-        prevValue[currentValue.category.type]! += currentValue.amount;
+        const convertedAmount = convertToBaseCurrency(
+            currentValue.amount,
+            currentValue.currency.code
+        );
 
-        totalSpendingAmount += currentValue.amount;
+        prevValue[currentValue.category.type]! += convertedAmount;
+
+        totalSpendingAmount += convertedAmount;
 
         return prevValue;
     }, spendingPerCategory);
@@ -38,9 +45,11 @@ const ExpensesPieChart: React.FC = () => {
                 (100 * amount) /
                 totalSpendingAmount
             ).toFixed();
+
             return {
                 id: category,
                 value: amount,
+                color: categoryColorMapping[category as Category],
                 label: `${
                     expenseCategoryDescriptionMapping[category as Category]
                 } ${spendingPercent}%`,
@@ -59,17 +68,17 @@ const ExpensesPieChart: React.FC = () => {
                             highlighted: "item",
                         },
                         faded: {
-                            innerRadius: 30,
+                            innerRadius: 70,
                             additionalRadius: -30,
                             color: "gray",
                         },
-                        innerRadius: 30,
-                        outerRadius: 100,
-                        cx: 150,
-                        cy: 150,
+                        innerRadius: 70,
+                        outerRadius: 150,
+                        cx: 200,
+                        cy: 200,
                     },
                 ]}
-                width={500}
+                width={700}
                 height={500}
             />
         </>

@@ -1,4 +1,4 @@
-import { CurrencyRates, currencyCodes } from "../model/Currency";
+import { CurrencyRates, currencyCodes, Currency } from "../model/Currency";
 import store from "../store/redux";
 
 const baseUrl = "https://api.freecurrencyapi.com/v1/";
@@ -30,4 +30,13 @@ export const parseCurrencyRates = (
     }
 
     return responseData.data!;
+};
+
+export const convertToBaseCurrency = (
+    amount: number,
+    currencyCode: Currency
+) => {
+    const currencyRates = store.getState().expenses.currencyRates;
+
+    return +(amount / currencyRates[currencyCode]!).toFixed(2);
 };
