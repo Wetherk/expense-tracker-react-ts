@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 
-import ExpensesPieChart from "../components/Expenses/ExpensesPieChart";
+import ExpensesPieChart from "../components/Expenses/Chart/ExpensesPieChart";
 import useRequest from "../hooks/useRequest";
 import {
     getCurrencyRates,

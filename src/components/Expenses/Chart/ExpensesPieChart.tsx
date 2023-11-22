@@ -3,16 +3,16 @@ import { useSelector } from "react-redux";
 import { Box, Typography, Paper, Avatar } from "@mui/material";
 import { PieChart } from "@mui/x-charts/PieChart";
 
-import { RootState } from "../../store/redux";
-import { Expense } from "../../model/Expense";
+import { RootState } from "../../../store/redux";
+import { Expense } from "../../../model/Expense";
 import {
     Category,
     categoryColorMapping,
     categoryIconMapping,
     expenseCategoryDescriptionMapping,
-} from "../../model/Category";
-import { convertToBaseCurrency } from "../../service/CurrencyConversionRate";
-import { Currency } from "../../model/Currency";
+} from "../../../model/Category";
+import { convertToBaseCurrency } from "../../../service/CurrencyConversionRate";
+import { Currency } from "../../../model/Currency";
 import ExpensesPieChartSorter from "./ExpensesPieChartSorter";
 
 type SpendingPerCategory = {

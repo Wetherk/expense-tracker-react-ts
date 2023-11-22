@@ -5,243 +5,34 @@ import {
     Typography,
     Alert,
     TableContainer,
-    TableHead,
     Table,
     TableCell,
     TableRow,
     TableBody,
     Box,
-    Button,
-    Toolbar,
-    Tooltip,
-    IconButton,
     Checkbox,
-    Switch,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { alpha } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Expense } from "../../model/Expense";
+import { Expense } from "../../../model/Expense";
 import {
     getExpenses,
     parseExpenses,
     removeExpense,
-} from "../../service/Expenses";
-import { CurrencyRates, currencySymbolMapping } from "../../model/Currency";
-import {
-    parseCurrencyRates,
-    getCurrencyRates,
-    convertToBaseCurrency,
-} from "../../service/CurrencyConversionRate";
+} from "../../../service/Expenses";
+import { currencySymbolMapping } from "../../../model/Currency";
+import { convertToBaseCurrency } from "../../../service/CurrencyConversionRate";
 import {
     categoryColorMapping,
     categoryIconMapping,
-} from "../../model/Category";
-import useRequest from "../../hooks/useRequest";
-import { AppDispatch, RootState } from "../../store/redux";
-import { expensesActions } from "../../store/expensesSlice";
-import { paymentMethodDescriptionMapping } from "../../model/PaymentMethod";
-import NewExpenseDialog from "./NewExpenseDialog";
-
-interface EnhancedTableToolbarProps {
-    numSelected: number;
-    deleteBusy: boolean;
-    deleteError: string;
-    onCreate: () => void;
-    onDelete: () => void;
-    onConvertToBaseCurrency: (convert: boolean) => void;
-}
-
-const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = (props) => {
-    const {
-        numSelected,
-        onCreate,
-        onDelete,
-        deleteBusy,
-        deleteError,
-        onConvertToBaseCurrency,
-    } = props;
-    const [convertToBaseCurrencyActive, setConvertToBaseCurrencyActive] =
-        useState(false);
-    const dispatch = useDispatch<AppDispatch>();
-
-    const {
-        data: rates,
-        isLoading: ratesLoading,
-        error: ratesError,
-        sendRequest: fetchCurrencyRates,
-    } = useRequest<CurrencyRates>(getCurrencyRates, parseCurrencyRates);
-
-    useEffect(() => {
-        fetchCurrencyRates();
-    }, [fetchCurrencyRates]);
-
-    useEffect(() => {
-        if (rates) {
-            dispatch(expensesActions.setCurrencyRates(rates));
-        }
-    }, [rates, dispatch]);
-
-    const handleConvertToBaseCurrencyChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        setConvertToBaseCurrencyActive(event.target.checked);
-        onConvertToBaseCurrency(event.target.checked);
-    };
-
-    return (
-        <Toolbar
-            sx={{
-                pl: { sm: 2 },
-                pr: { xs: 1, sm: 1 },
-                width: "100%",
-                outline: "1px solid #ccc",
-                ...(numSelected > 0 && {
-                    bgcolor: (theme) =>
-                        alpha(
-                            theme.palette.primary.main,
-                            theme.palette.action.activatedOpacity
-                        ),
-                }),
-            }}
-        >
-            {numSelected > 0 ? (
-                <Typography
-                    sx={{ flex: "1 1 100%" }}
-                    color="inherit"
-                    variant="subtitle1"
-                    component="div"
-                >
-                    {numSelected} selected
-                </Typography>
-            ) : (
-                <Typography
-                    sx={{ flex: "1 1 100%" }}
-                    variant="h5"
-                    component="div"
-                >
-                    Expenses
-                </Typography>
-            )}
-            {numSelected > 0 && !deleteBusy && !deleteError && (
-                <Tooltip title="Delete">
-                    <IconButton onClick={onDelete}>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
-            )}
-            {deleteError && (
-                <Alert sx={{ lineHeight: 1 }} severity="error">
-                    {deleteError}
-                </Alert>
-            )}
-            {deleteBusy && <CircularProgress size="2rem" />}
-            {!(numSelected > 0) && (
-                <>
-                    <CurrencyRateConversionSwitch
-                        onConvertToBaseCurrencyChange={
-                            handleConvertToBaseCurrencyChange
-                        }
-                        convertToBaseCurrencyActive={
-                            convertToBaseCurrencyActive
-                        }
-                        ratesLoading={ratesLoading}
-                        ratesError={ratesError}
-                    />
-                    <Button onClick={onCreate} variant="contained">
-                        Create
-                    </Button>
-                </>
-            )}
-        </Toolbar>
-    );
-};
-
-interface CurrencyRateConversionSwitchProps {
-    convertToBaseCurrencyActive: boolean;
-    onConvertToBaseCurrencyChange: (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => void;
-    ratesLoading: boolean;
-    ratesError: string;
-}
-
-const CurrencyRateConversionSwitch: React.FC<
-    CurrencyRateConversionSwitchProps
-> = (props) => {
-    const {
-        convertToBaseCurrencyActive,
-        onConvertToBaseCurrencyChange,
-        ratesError,
-        ratesLoading,
-    } = props;
-
-    const reduxRates = useSelector(
-        (state: RootState) => state.expenses.currencyRates
-    );
-
-    return (
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-            {!Object.keys(reduxRates).length && ratesLoading && (
-                <CircularProgress sx={{ marginRight: 5 }} size="2rem" />
-            )}
-            {!!Object.keys(reduxRates).length && (
-                <Switch
-                    checked={convertToBaseCurrencyActive}
-                    onChange={onConvertToBaseCurrencyChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                />
-            )}
-            {ratesError && !ratesLoading && (
-                <Alert
-                    sx={{ width: 320, lineHeight: 0.5, marginRight: 1 }}
-                    severity="error"
-                >
-                    {ratesError}
-                </Alert>
-            )}
-
-            <Typography color="inherit" variant="subtitle1" component="div">
-                Convert to base rate
-            </Typography>
-        </Box>
-    );
-};
-
-interface EnhancedTableProps {
-    numSelected: number;
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    rowCount: number;
-}
-
-const EnhancedTableHead: React.FC<EnhancedTableProps> = (props) => {
-    const { onSelectAllClick, numSelected, rowCount } = props;
-
-    return (
-        <TableHead>
-            <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        color="primary"
-                        indeterminate={
-                            numSelected > 0 && numSelected < rowCount
-                        }
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{
-                            "aria-label": "select all expenses",
-                        }}
-                    />
-                </TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Payment Method</TableCell>
-                <TableCell align="right">Sum</TableCell>
-                <TableCell align="right">Date</TableCell>
-            </TableRow>
-        </TableHead>
-    );
-};
+} from "../../../model/Category";
+import useRequest from "../../../hooks/useRequest";
+import { AppDispatch, RootState } from "../../../store/redux";
+import { expensesActions } from "../../../store/expensesSlice";
+import { paymentMethodDescriptionMapping } from "../../../model/PaymentMethod";
+import NewExpenseDialog from "../NewExpenseDialog";
+import EnhancedTableHead from "./EnhancedTableHead";
+import EnhancedTableToolbar from "./EnhancedTableToolbar";
 
 const ExpensesList: React.FC = () => {
     const [selected, setSelected] = useState<string[]>([]);

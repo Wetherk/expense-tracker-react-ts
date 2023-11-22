@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 
-import ExpensesTable from "../components/Expenses/ExpensesTable";
+import ExpensesTable from "../components/Expenses/Table/ExpensesTable";
 
 const Expenses = () => {
     return (
