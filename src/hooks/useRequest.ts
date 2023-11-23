@@ -19,6 +19,7 @@ function useRequest<T>(
                 const responseData = await response.json();
                 let data = responseData;
 
+                if (responseData?.error) throw new Error(responseData.error);
                 if (responseParser)
                     data = responseParser(responseData, response);
 

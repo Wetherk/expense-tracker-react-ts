@@ -7,6 +7,7 @@ import { getFirebaseErrorMessage } from "./utils/firebaseErrorHandler.ts";
 import { AppDispatch, RootState } from "./store/redux.ts";
 import { authActions } from "./store/authSlice.ts";
 import LoadingScreen from "./components/UI/LoadingScreen.tsx";
+import { expensesActions } from "./store/expensesSlice.ts";
 
 const App: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -20,13 +21,15 @@ const App: React.FC = () => {
             if (user) {
                 user.getIdToken()
                     .then((accessToken) => {
-                        if (user.email)
+                        if (user.email) {
                             dispatch(
                                 authActions.setUser({
                                     accessToken,
                                     email: user.email,
+                                    uid: user.uid,
                                 })
                             );
+                        }
                         dispatch(authActions.setIsLoggedIn(true));
                         dispatch(authActions.setLoading(false));
                         if (location.pathname === "/login") navigate("/");
@@ -42,7 +45,10 @@ const App: React.FC = () => {
                             navigate("/login?mode=logIn");
                     });
             } else {
-                dispatch(authActions.setUser({ accessToken: "", email: "" }));
+                dispatch(expensesActions.setExpenses([]));
+                dispatch(
+                    authActions.setUser({ accessToken: "", email: "", uid: "" })
+                );
                 dispatch(authActions.setIsLoggedIn(false));
                 dispatch(authActions.setLoading(false));
                 if (location.pathname !== "/login")

@@ -2,10 +2,15 @@ import { Expense } from "../model/Expense";
 import store from "../store/redux";
 
 const basePath =
-    "https://expense-tracker-12796-default-rtdb.europe-west1.firebasedatabase.app/";
+    "https://expense-tracker-12796-default-rtdb.europe-west1.firebasedatabase.app/users";
+
+const getToken = () => store.getState().auth.user.accessToken;
+const getUserUid = () => store.getState().auth.user.uid;
 
 export const getExpenses = (): Promise<Response> => {
-    return fetch(`${basePath}/expenses.json`);
+    return fetch(
+        `${basePath}/${getUserUid()}/expenses.json?auth=${getToken()}`
+    );
 };
 
 export const parseExpenses = (responseData: object | null) => {
@@ -19,7 +24,7 @@ export const parseExpenses = (responseData: object | null) => {
 
 export const addExpense = (expense: Expense): Promise<Expense[]> => {
     return new Promise((resolve, reject) => {
-        fetch(`${basePath}/expenses.json`, {
+        fetch(`${basePath}/${getUserUid()}/expenses.json?auth=${getToken()}`, {
             method: "POST",
             body: JSON.stringify(expense),
             headers: {
@@ -38,7 +43,10 @@ export const addExpense = (expense: Expense): Promise<Expense[]> => {
 };
 
 export const removeExpense = (expenseId: string) => {
-    return fetch(`${basePath}/expenses/${expenseId}.json`, {
-        method: "DELETE",
-    });
+    return fetch(
+        `${basePath}/${getUserUid()}/expenses/${expenseId}.json?auth=${getToken()}`,
+        {
+            method: "DELETE",
+        }
+    );
 };

@@ -24,6 +24,7 @@ const initialState: AuthState = {
     user: {
         accessToken: "",
         email: "",
+        uid: "",
     },
 };
 
@@ -42,10 +43,12 @@ const authSlice = createSlice({
             action: PayloadAction<{
                 accessToken: string;
                 email: string;
+                uid: string;
             }>
         ) {
             state.user.accessToken = action.payload.accessToken;
             state.user.email = action.payload.email;
+            state.user.uid = action.payload.uid;
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
