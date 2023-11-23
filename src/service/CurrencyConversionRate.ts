@@ -10,15 +10,34 @@ export type CurrencyRatesResponseData = {
     message?: string;
 };
 
-export const getCurrencyRates = async (): Promise<Response> => {
+let lastCalled: Date | null = null;
+const callDelay = 5000;
+
+export const getCurrencyRates = (): Promise<Response> => {
     const baseCurrency = store.getState().expenses.baseCurrency;
     const symbols = currencyCodes
         .reduce((acc, currency) => acc.concat(`,${currency}`), "")
         .slice(1);
 
-    return fetch(
-        `${baseUrl}/latest?apikey=${apiKey}&base_currency=${baseCurrency}&currencies=${symbols}`
-    );
+    return new Promise((resolve, reject) => {
+        if (!lastCalled) {
+            lastCalled = new Date();
+            fetch(
+                `${baseUrl}/latest?apikey=${apiKey}&base_currency=${baseCurrency}&currencies=${symbols}`
+            )
+                .then(resolve)
+                .catch(reject);
+        } else {
+            if (new Date().getTime() - lastCalled.getTime() > callDelay) {
+                lastCalled = new Date();
+                fetch(
+                    `${baseUrl}/latest?apikey=${apiKey}&base_currency=${baseCurrency}&currencies=${symbols}`
+                )
+                    .then(resolve)
+                    .catch(reject);
+            }
+        }
+    });
 };
 
 export const parseCurrencyRates = (
