@@ -1,13 +1,12 @@
 import { BottomNavigation, BottomNavigationAction } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
-import CategoryIcon from "@mui/icons-material/Category";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PersonIcon from "@mui/icons-material/Person";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-type Routes = "/" | "/categories" | "/statistics" | "/expenses" | "/userInfo";
+type Routes = "/" | "/statistics" | "/expenses" | "/userInfo";
 
 const isRoute = (path: string): path is Routes => {
     return [
@@ -33,7 +32,7 @@ const NavBar: React.FC = () => {
     const navigate = useNavigate();
 
     const handleNavigationChange = (
-        event: React.SyntheticEvent,
+        _e: React.SyntheticEvent,
         value: Routes
     ) => {
         setCurrentRoute(value);
@@ -60,11 +59,6 @@ const NavBar: React.FC = () => {
                 value="/statistics"
                 label="Statistics"
                 icon={<QueryStatsIcon />}
-            />
-            <BottomNavigationAction
-                value="/categories"
-                label="Categories"
-                icon={<CategoryIcon />}
             />
             <BottomNavigationAction
                 value="/userInfo"

@@ -20,7 +20,6 @@ import LogIn from "./routes/logIn.tsx";
 import Root from "./routes/root.tsx";
 import Home from "./routes/home.tsx";
 import Statistics from "./routes/statistics.tsx";
-import Categories from "./routes/categories.tsx";
 import Expenses from "./routes/expenses.tsx";
 import NotFound from "./routes/notFound.tsx";
 import UserInfo from "./routes/userInfo.tsx";
@@ -57,10 +56,6 @@ const router = createBrowserRouter([
                     {
                         path: "/statistics",
                         element: <Statistics />,
-                    },
-                    {
-                        path: "/categories",
-                        element: <Categories />,
                     },
                     {
                         path: "/userInfo",

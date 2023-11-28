@@ -32,7 +32,10 @@ const UserInfo: React.FC = () => {
         dispatch(logOut());
     };
 
-    const handleCurrencyChange = (e: React.SyntheticEvent, value: Currency) => {
+    const handleCurrencyChange = (
+        _e: React.SyntheticEvent,
+        value: Currency
+    ) => {
         dispatch(expensesActions.setBaseCurrency(value));
     };
 

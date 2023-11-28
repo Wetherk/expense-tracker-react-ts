@@ -77,7 +77,7 @@ const ExpensesList: React.FC = () => {
 
     const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
-    const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
+    const handleClick = (_e: React.MouseEvent<unknown>, id: string) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: string[] = [];
 

@@ -151,7 +151,7 @@ const NewExpenseDialog: React.FC<NewNewExpenseDialogProps> = (props) => {
     };
 
     const handleCurrencyChange = (
-        e: React.SyntheticEvent,
+        _e: React.SyntheticEvent,
         value: Currency | null
     ) => {
         setCurrency(value);
@@ -163,7 +163,7 @@ const NewExpenseDialog: React.FC<NewNewExpenseDialogProps> = (props) => {
     };
 
     const handleCategoryChange = (
-        e: React.SyntheticEvent,
+        _e: React.SyntheticEvent,
         value: Category | null
     ) => {
         setCategory(value);
@@ -174,7 +174,7 @@ const NewExpenseDialog: React.FC<NewNewExpenseDialogProps> = (props) => {
     };
 
     const handlePaymentMethodChange = (
-        e: React.SyntheticEvent,
+        _e: React.SyntheticEvent,
         value: PaymentMethod | null
     ) => {
         setPaymentMethod(value);
