@@ -16,3 +16,8 @@ Technologies used:
 
 # Application is hosted on [Vercel](https://vercel.com/)
 Link: [Expense Tracker](https://expense-tracker-gamma-nine.vercel.app/)
+
+User credentials for viewing dummy data:
+- email: `test@test.com`
+- password `123456`
+
